@@ -1,7 +1,7 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+@author: Kai Qi
+This file is the Gabor-Filtered Fourier Neural Operator for solving the Navier-Stokes equation in Section 5.3.2 in the 
+[paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
 
 import argparse
@@ -16,11 +16,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from Adam import Adam
 from torch.nn import Parameter
 from torch.nn.modules import Module
 from torch.nn.parameter import Parameter
-
-from Adam import Adam
 from utilities3 import *
 
 torch.manual_seed(0)
@@ -36,13 +35,8 @@ parser.add_argument('--size_frequency', type=int, default=74, help='size_frequen
 
 args = parser.parse_args()
 
-
-
-
 global size_frequency
 size_frequency = args.size_frequency
-
-
 
 class GaborConv2d(Module):
     def __init__(
@@ -52,10 +46,8 @@ class GaborConv2d(Module):
         super().__init__()
 
         self.kernel_num = kernel_num
-
         # small addition to avoid division by zero
         self.delta = 1e-3
-
         self.freq = nn.Parameter(
             torch.tensor([1.1107]).type(torch.Tensor),
             requires_grad=True,
@@ -66,7 +58,6 @@ class GaborConv2d(Module):
         )
         self.sigma = nn.Parameter(torch.tensor([2.82]).type(torch.Tensor), requires_grad=True)
         self.gamma = nn.Parameter(torch.tensor([1.0]).type(torch.Tensor), requires_grad=True)
-
 
         # 向我们建立的网络module添加新的 parameter
         self.register_parameter("freq", self.freq)
@@ -89,7 +80,6 @@ class GaborConv2d(Module):
 
         f = self.freq
         theta = self.theta
-
         u = x.cuda()  * torch.cos(theta) + y.cuda()  * torch.sin(theta)
         v = -x.cuda() * torch.sin(theta) + y.cuda()  * torch.cos(theta)
 
@@ -128,7 +118,6 @@ class SpectralConv2d_fast(nn.Module):
         self.modes1 = modes1 #Number of Fourier modes to multiply, at most floor(N/2) + 1
         self.modes2 = modes2
  
-
         self.scale = (1 / (in_channels * out_channels))
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)) #32,32,12,12
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)) #32,32,12,12
@@ -136,7 +125,6 @@ class SpectralConv2d_fast(nn.Module):
         self.g0 = GaborConv2d(kernel_num = 1)
         self.weights3 = nn.Parameter(torch.rand(1), requires_grad=True)
     
-        
     
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -162,10 +150,8 @@ class SpectralConv2d_fast(nn.Module):
         x_ft = torch.fft.rfft2(x)  
                 
         out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-
         out_ft[ :, :, :self.modes1, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1 * gabor1)
-
         out_ft[:, :, -self.modes1:, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2 * gabor2)
 
@@ -258,10 +244,6 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
- 
-
-# TRAIN_PATH = '/media/datadisk/Mycode/1.My-DNN-Practice/Neural_Operator_Data/ns_V1e-3_N5000_T50.mat'
-
 
 ntrain = 1000
 ntest = 200
@@ -320,7 +302,6 @@ test_a = test_a.reshape(ntest,S,S,T_in)
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
-
 ################################################################
 # training and evaluation
 ################################################################
@@ -342,7 +323,6 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
-
 
     for xx, yy in train_loader:
         loss = 0
@@ -367,7 +347,6 @@ for ep in range(epochs):
 
         optimizer.zero_grad()
         loss.backward()
-
 
         optimizer.step()
     scheduler.step()
@@ -412,7 +391,6 @@ name1 = os.path.basename(__file__).split(".")[0]
 torch.save(model, '/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ours/save_time-upload-to-github/model_save/'+ name1)
 
 import scipy.io as io
-
 io.savemat('/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ours/save_time-upload-to-github/model_save/' + name1  + '.mat', 
            {'train_l2': np.array(train_l2_record), 'test_l2': np.array(test_l2_record)})
 

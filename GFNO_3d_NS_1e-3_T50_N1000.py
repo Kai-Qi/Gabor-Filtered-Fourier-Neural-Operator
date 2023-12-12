@@ -1,7 +1,7 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+@author: Kai Qi
+This file is the Gabor-Filtered Fourier Neural Operator for solving the Navier-Stokes equation in Section 5.3.2 in the 
+[paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
 
 import argparse
@@ -16,11 +16,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from Adam import Adam
 from torch.nn import Parameter
 from torch.nn.modules import Module
 from torch.nn.parameter import Parameter
-
-from Adam import Adam
 from utilities3 import *
 
 torch.manual_seed(0)
@@ -33,10 +32,7 @@ parser = argparse.ArgumentParser(description='....')
 parser.add_argument('--learning_rate', type=float, default=0.021, help='Learning rate')
 parser.add_argument('--len', type=int, default=11, help='len')
 parser.add_argument('--size_frequency', type=int, default=74, help='size_frequency')
-
 args = parser.parse_args()
-
-
 
 global size_frequency
 size_frequency = args.size_frequency
@@ -65,8 +61,6 @@ class GaborConv2d(Module):
         self.sigma = nn.Parameter(torch.tensor([2.82]).type(torch.Tensor), requires_grad=True)
         self.gamma = nn.Parameter(torch.tensor([1.0]).type(torch.Tensor), requires_grad=True)
 
-
-        # 向我们建立的网络module添加新的 parameter
         self.register_parameter("freq", self.freq)
         self.register_parameter("theta", self.theta)
         self.register_parameter("sigma", self.sigma)
@@ -126,7 +120,6 @@ class SpectralConv2d_fast(nn.Module):
         self.modes1 = modes1 #Number of Fourier modes to multiply, at most floor(N/2) + 1
         self.modes2 = modes2
  
-
         self.scale = (1 / (in_channels * out_channels))
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)) #32,32,12,12
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)) #32,32,12,12
@@ -135,7 +128,6 @@ class SpectralConv2d_fast(nn.Module):
         self.weights3 = nn.Parameter(torch.rand(1), requires_grad=True)
     
         
-    
     # Complex multiplication
     def compl_mul2d(self, input, weights):
         # (batch, in_channel, x,y ), (in_channel, out_channel, x,y) -> (batch, out_channel, x,y)
@@ -160,10 +152,8 @@ class SpectralConv2d_fast(nn.Module):
         x_ft = torch.fft.rfft2(x)  
                 
         out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-
         out_ft[ :, :, :self.modes1, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1 * gabor1)
-
         out_ft[:, :, -self.modes1:, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2 * gabor2)
 
@@ -336,7 +326,6 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
-
 
     for xx, yy in train_loader:
         loss = 0

@@ -1,7 +1,7 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+@author: Kai Qi
+This file is the Gabor-Filtered Fourier Neural Operator for solving the Shallow Water equation in Section 5.3.4 in the 
+[paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
 
 import argparse
@@ -14,26 +14,24 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+
 print(torch.cuda.device_count())
 import torch.nn as nn
 import torch.nn.functional as F
+from Adam import Adam
 from torch.nn import Parameter
 from torch.nn.modules import Module
 from torch.nn.parameter import Parameter
-
-from Adam import Adam
 from utilities3 import *
 
 torch.manual_seed(0)
 np.random.seed(0)
 from timeit import default_timer
 
-
 torch.backends.cudnn.benchmark = True
 
-
-
 from Adam import Adam
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 parser = argparse.ArgumentParser(description='....')
@@ -62,10 +60,8 @@ class GaborConv2d(Module):
         super().__init__()
 
         self.kernel_num = kernel_num
-
         # small addition to avoid division by zero
         self.delta = 1e-3
-
         self.freq = nn.Parameter(
             torch.tensor([1.1107]).type(torch.Tensor),
             requires_grad=True,
@@ -77,13 +73,10 @@ class GaborConv2d(Module):
         self.sigma = nn.Parameter(torch.tensor([2.82]).type(torch.Tensor), requires_grad=True)
         self.gamma = nn.Parameter(torch.tensor([1.0]).type(torch.Tensor), requires_grad=True)
 
-
-        # 向我们建立的网络module添加新的 parameter
         self.register_parameter("freq", self.freq)
         self.register_parameter("theta", self.theta)
         self.register_parameter("sigma", self.sigma)
         self.register_parameter("gamma", self.gamma)
-
 
     def forward(self):   # input_tensor: 20*32*94*94
 
@@ -119,10 +112,6 @@ class GaborConv2d(Module):
         """
         
         return  weight #返回值： 16*20*32*94*94
-
-
-
-
 
 ################################################################
 # fourier layer
@@ -461,22 +450,13 @@ for ep in range(epochs):
         #     '%.4f'% max(norm3), '%.4f'% max(norm4), '%.4f'% max(norm5), ";" , '%.4f'% max(norm6),'%.4f'% max(norm7),'%.4f'% max(norm8), \
         #         ";",'%.4f'% max(norm9),'%.4f'% max(norm10) , 'Learning_rate:' , optimizer.state_dict()['param_groups'][0]['lr'] )
         
-        
         train_l2_record.append(train_l2_full / ntrain/ T)
         test_l2_record.append(test_l2_full / ntest/ T)
         
-        
-
         print(ep, '%.2f'% (t2-t1), '%.8f'% (train_l2_full / ntrain / T),  \
             '\033[1;35m %.8f \033[0m' % (test_l2_full / ntest/ T) )
         
         
-
-
-
-
-
-
 # ##################################################################################################
 # pred = torch.zeros(train_u.shape)
 # index = 0
@@ -587,7 +567,6 @@ torch.save(model, '/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ou
 
 
 import scipy.io as io
-
 io.savemat('/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ours/save_time-upload-to-github/model_save/' + name1 + name2 + name3 + '.mat', 
            {'train_l2': np.array(train_l2_record), 'test_l2': np.array(test_l2_record)})
 print({"finfish"})

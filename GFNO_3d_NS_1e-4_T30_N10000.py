@@ -1,7 +1,7 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+@author: Kai Qi
+This file is the Gabor-Filtered Fourier Neural Operator for solving the Navier-Stokes equation in Section 5.3.2 in the 
+[paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
 
 import argparse
@@ -16,11 +16,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from Adam import Adam
 from torch.nn import Parameter
 from torch.nn.modules import Module
 from torch.nn.parameter import Parameter
-
-from Adam import Adam
 from utilities3 import *
 
 torch.manual_seed(0)
@@ -37,12 +36,8 @@ parser.add_argument('--width', type=int, default=20, help='width')
 
 args = parser.parse_args()
 
-
-
 global size_frequency
 size_frequency = args.size_frequency
-
-
 
 class GaborConv2d(Module):
     def __init__(
@@ -68,7 +63,6 @@ class GaborConv2d(Module):
         self.gamma = nn.Parameter(torch.tensor([1.0]).type(torch.Tensor), requires_grad=True)
 
 
-        # 向我们建立的网络module添加新的 parameter
         self.register_parameter("freq", self.freq)
         self.register_parameter("theta", self.theta)
         self.register_parameter("sigma", self.sigma)
@@ -111,7 +105,6 @@ class GaborConv2d(Module):
         return  weight #返回值： 16*20*32*94*94
 
 
-
 ################################################################
 # fourier layer
 ################################################################
@@ -128,7 +121,6 @@ class SpectralConv2d_fast(nn.Module):
         self.modes1 = modes1 #Number of Fourier modes to multiply, at most floor(N/2) + 1
         self.modes2 = modes2
  
-
         self.scale = (1 / (in_channels * out_channels))
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)) #32,32,12,12
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)) #32,32,12,12
@@ -136,7 +128,6 @@ class SpectralConv2d_fast(nn.Module):
         self.g0 = GaborConv2d(kernel_num = 1)
         self.weights3 = nn.Parameter(torch.rand(1), requires_grad=True)
     
-        
     
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -165,7 +156,6 @@ class SpectralConv2d_fast(nn.Module):
 
         out_ft[ :, :, :self.modes1, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1 * gabor1)
-
         out_ft[:, :, -self.modes1:, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2 * gabor2)
 
@@ -257,11 +247,6 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
-
- 
-
-# TRAIN_PATH = '/media/datadisk/Mycode/1.My-DNN-Practice/Neural_Operator_Data/ns_V1e-3_N5000_T50.mat'
-
 
 ntrain = 9800
 ntest = 200

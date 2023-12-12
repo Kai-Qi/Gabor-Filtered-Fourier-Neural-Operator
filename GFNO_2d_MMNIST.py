@@ -1,7 +1,9 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Darcy Flow discussed in Section 5.2 in the [paper](https://arxiv.org/pdf/2010.08895.pdf).
+@author: Kai Qi
+This file is the Gabor-Filtered Fourier Neural Operator for solving the Mechanical MNIST in Section 5.3.3 in the 
+[paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
+
 import argparse
 import math
 import operator
@@ -13,18 +15,19 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+
 torch.cuda.device_count()
 import argparse
+import timeit
+from timeit import default_timer
 
 import torch.nn as nn
 import torch.nn.functional as F
+from Adam import Adam
 from torch.nn import Parameter
 from torch.nn.modules import Module
-
-from Adam import Adam
 from utilities3 import *
-import timeit
-from timeit import default_timer
+
 torch.backends.cudnn.benchmark = True
 # print(torch.cuda.device_count())
 
@@ -32,8 +35,6 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-
 
 parser = argparse.ArgumentParser(description='....')
 parser.add_argument('--learning_rate', type=float, default=0.012, help='Learning rate')
@@ -50,7 +51,6 @@ args = parser.parse_args()
 global num
 global s
 global len
-
 num = args.num
 s = 28
 len  = args.len
@@ -67,7 +67,6 @@ class GaborConv2d(Module):
 
         # small addition to avoid division by zero
         self.delta = 1e-3
-
         self.freq = nn.Parameter(
             torch.tensor([1.1107]).type(torch.Tensor),
             requires_grad=True,
@@ -79,8 +78,6 @@ class GaborConv2d(Module):
         self.sigma = nn.Parameter(torch.tensor([2.82]).type(torch.Tensor), requires_grad=True)
         self.gamma = nn.Parameter(torch.tensor([1.0]).type(torch.Tensor), requires_grad=True)
 
-
-        # 向我们建立的网络module添加新的 parameter
         self.register_parameter("freq", self.freq)
         self.register_parameter("theta", self.theta)
         self.register_parameter("sigma", self.sigma)
@@ -98,21 +95,16 @@ class GaborConv2d(Module):
 
         x = torch.unsqueeze(x,0)
         x = x.repeat(num,1,1)
-
         y = torch.unsqueeze(y,0)
         y = y.repeat(num,1,1)
-
         sigma_x = self.sigma 
         sigma_y = sigma_x.float() / (self.gamma+1e-5)
-
         f = self.freq
         theta = self.theta
-
         f = f.reshape(num,1,1)
         theta = theta.reshape(num,1,1)
         sigma_x = sigma_x.reshape(num,1,1)
         sigma_y = sigma_y.reshape(num,1,1)
-
 
         u = x.cuda()  * torch.cos(theta) + y.cuda()  * torch.sin(theta)
         v = -x.cuda() * torch.sin(theta) + y.cuda()  * torch.cos(theta)
@@ -120,8 +112,6 @@ class GaborConv2d(Module):
         test1 = sigma_x**2 *(u- (f/np.pi))**2
         test2 =  sigma_y**2 *  v **2
         weight = torch.exp(-2*np.pi**2 * (test1 + test2))
-        
-        
         
         """
         fig = plt.figure()
@@ -174,25 +164,20 @@ class SpectralConv2d(nn.Module):
 
         gabor =  self.g0()  
         gabor = torch.fft.ifftshift(gabor)
-
         gabor = torch.unsqueeze(gabor,1)
         gabor = torch.unsqueeze(gabor,1)
         
-
         gabor1 = gabor[:, :, :, :self.modes1, :self.modes2]
         gabor2 = gabor[:, :, :, -self.modes1:, :self.modes2]
         
-        x_ft = torch.fft.rfft2(x)  
-                
+        x_ft = torch.fft.rfft2(x)    
         x_ft = torch.unsqueeze(x_ft,0)
         x_ft = x_ft.repeat(num,1,1,1,1)        
                 
         out_ft = torch.zeros(num, batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-
-
+        
         weights1 = torch.unsqueeze(self.weights1,0)
         weights1 = weights1.repeat(num,1,1,1,1)
-        
         weights2 = torch.unsqueeze(self.weights2,0)
         weights2 = weights2.repeat(num,1,1,1,1)
 
@@ -202,7 +187,6 @@ class SpectralConv2d(nn.Module):
 
         out_ft[:, :, :, -self.modes1:, :self.modes2] = \
             self.compl_mul2d(x_ft[:, :, :, -self.modes1:, :self.modes2], self.weights2 * gabor2)
-
 
         # test = nn.Softmax(dim=0)(self.weights3)
         weights3 = torch.unsqueeze(nn.Softmax(dim=0)(self.weights3), 2)
@@ -291,16 +275,13 @@ class FNO2d(nn.Module):
         return x
     
 
-
 ################################################################
 # configs
 ################################################################
 ntrain = 60000
 ntest = 10000
-
 batch_size = 100
 learning_rate = args.learning_rate
-
 epochs = 1000
 step_size = 100
 gamma = 0.5
@@ -396,10 +377,7 @@ model = FNO2d(modes, modes, 16).cuda()
 print(count_params(model))
 model = FNO2d(modes, modes, 12).cuda()
 print(count_params(model))
-
 """
-
-
 
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
@@ -415,7 +393,6 @@ for ep in range(epochs):
     model.train()
     t1 = default_timer()
     train_l2 = 0
-
     
     for x, y, idx in train_loader:
         x, y = x.cuda(), y.cuda()
@@ -428,7 +405,6 @@ for ep in range(epochs):
 
         loss = myloss(out.view(batch_size,-1), y.view(batch_size,-1))
         loss.backward()
-
 
         optimizer.step()
         train_l2 += loss.item()
@@ -462,10 +438,6 @@ for ep in range(epochs):
 
 # elapsed = timeit.default_timer() - start_time
 # print("The training wall-clock time is seconds is equal to %f seconds"%elapsed)
-
-
-
-# ############################################################################################################################
 
 
 # pred_torch = torch.zeros(S_train.shape)
@@ -527,7 +499,6 @@ print("The average test v error is %e the standard deviation is %e the min error
 
 
 
-
 import os
 name1 = os.path.basename(__file__).split(".")[0]
 name2 = '_l_r_'
@@ -536,12 +507,9 @@ torch.save(model, '/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ou
 
 
 import scipy.io as io
-
 io.savemat('/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ours/save_time-upload-to-github/model_save/' + name1 + name2 + name3+str(args.h)+ '.mat', 
            {'train_l2': np.array(train_l2_record), 'test_l2': np.array(test_l2_record)})
-
 print({"finfish"})
-
 io.savemat('/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ours/save_time-upload-to-github/model_save/' + name1 + '_pred_torch_' +str(args.h) + '.mat', 
            {'pred_torch': np.array(pred_torch)})
 
@@ -610,6 +578,5 @@ io.savemat('/media/datadisk/Mycode/1.My-DNN-Practice/0.FNO_GaborFilter_Ours/save
 
 # print("The average test u error is %e the standard deviation is %e the min error is %e and the max error is %e"%(np.mean(test_error_u_np),np.std(test_error_u_np),np.min(test_error_u_np),np.max(test_error_u_np)))
 # print("The average test v error is %e the standard deviation is %e the min error is %e and the max error is %e"%(np.mean(test_error_v_np),np.std(test_error_v_np),np.min(test_error_v_np),np.max(test_error_v_np)))
-
 
 

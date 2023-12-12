@@ -5,7 +5,6 @@ Burgers equation discussed in Section 5.3 in the
 [paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
 
-
 import argparse
 import logging
 import math
@@ -20,11 +19,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor, nn
-from torch.nn.parameter import Parameter
-from torch.nn.modules import Conv1d
 from Adam import Adam
+from torch import Tensor, nn
+from torch.nn.modules import Conv1d
+from torch.nn.parameter import Parameter
 from utilities3 import *
+
 print(torch.cuda.device_count())
 torch.manual_seed(0)
 np.random.seed(0)
@@ -48,7 +48,6 @@ parser.add_argument('--sub', type=int, default = 16,  help='sub')
 parser.add_argument('--width', type=int, default=64, help='width')
 args = parser.parse_args() 
 
-
 global num
 global len
 global ex
@@ -59,10 +58,7 @@ num = args.num
 len = args.len
 ex = args.ex
 epoch = args.epoch
-
 szie = 2**13 // args.sub
-
-
 
 class GaborConv1d(nn.Module):
     def __init__(
@@ -72,18 +68,13 @@ class GaborConv1d(nn.Module):
         super().__init__()
 
         self.kernel_num = kernel_num
-        
-        # self.gamma = nn.Parameter(   torch.tensor([0.08]), requires_grad=True  )
-        # self.fwhm = nn.Parameter(    torch.tensor([0.01]), requires_grad=True  )
-    
         self.gamma = nn.Parameter(   torch.linspace(0.01, 0.02, self.kernel_num)  , requires_grad=True  )
         self.fwhm = nn.Parameter(   torch.linspace(0.001, 0.002,  self.kernel_num) , requires_grad=True  )
         
-        # 向我们建立的网络module添加新的 parameter
         self.register_parameter("gamma", self.gamma)
         self.register_parameter("fwhm", self.fwhm)
 
-    def forward(self):   # input_tensor: 20*32*94*94
+    def forward(self):  
 
         u = torch.linspace(-0.5, 0.5, szie + len - 1).cuda()
         u = torch.unsqueeze(u,0)
@@ -94,7 +85,6 @@ class GaborConv1d(nn.Module):
 
         gamma = torch.unsqueeze(gamma,1)
         fwhm = torch.unsqueeze(fwhm,1)
-        
         
         test1 = (gamma * torch.pi) / (fwhm +  1e-5)
         test2 =  u - fwhm
@@ -133,10 +123,7 @@ class SpectralConv1d(nn.Module):
         self.modes1 = modes1  #Number of Fourier modes to multiply, at most floor(N/2) + 1， models=16 here.
 
         self.scale = (1 / (in_channels*out_channels))  #1/(64*64)
-
-
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, dtype=torch.cfloat))  # 64*64*16复数
-
         self.g0 = GaborConv1d(kernel_num = args.num)
         self.weights2 = nn.Parameter(torch.rand(num, 1)) 
     
@@ -153,29 +140,16 @@ class SpectralConv1d(nn.Module):
         gabor = self.g0()   
         gabor = torch.fft.ifftshift(gabor)
 
-
-        """
-        fig = plt.figure()
-        x_plot = torch.linspace(0, szie + len - 1, szie + len - 1)
-
-        plt.plot(x_plot.numpy(), gabor[0,:].detach().cpu().numpy())
-        plt.show()
-        """
-        
-
         gabor1 = torch.unsqueeze(gabor, 1)
         gabor1 = torch.unsqueeze(gabor1, 1)
-
         gabor1 = gabor1[:, :, :, :self.modes1]
         
         x_ft = torch.fft.rfft(x)
         x_ft = torch.unsqueeze(x_ft, 0)
         x_ft = x_ft.repeat(num,1,1,1)
 
-
         weights1 = torch.unsqueeze(self.weights1,0)
         weights1 = weights1.repeat(num,1,1,1)
-
 
         # Multiply relevant Fourier modes
         out_ft = torch.zeros(num, batchsize, self.out_channels, x_ft.shape[3],  device=x.device, dtype=torch.cfloat)  #  40*20*64*513
@@ -310,8 +284,6 @@ y_test = y_data[-ntest:,:]
 # x_test = x_data[1000:1200,:]
 # y_test = y_data[1000:1200,:]
 
-
-
 x_train = x_train.reshape(ntrain,s,1)
 x_test = x_test.reshape(ntest,s,1)
 
@@ -341,13 +313,11 @@ print(count_params(model))
 """
 
 
-
 ################################################################
 # training and evaluation
 ################################################################
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, ex)
-
 
 myloss = LpLoss(size_average=False)
 train_l2_record = []
@@ -356,15 +326,12 @@ test_l2_record = []
 from time import *
 begin_time = time()
 
-
 for ep in range(epochs):
     model.train()
 
     t1 = default_timer()
     train_mse = 0
     train_l2 = 0
-
-
     for x, y in train_loader:
         x, y = x.cuda(), y.cuda()
         optimizer.zero_grad()
@@ -397,17 +364,11 @@ for ep in range(epochs):
     train_l2_record.append(train_l2)
     test_l2_record.append(test_l2)
 
-
     if ep % 1 == 0 or ep == 999 or ep == 4999:
-
         print(ep, '%.2f'% (t2-t1),'%.6f'% train_l2, '\033[1;35m %.8f \033[0m' %test_l2)
-
-    
 
 end_time = time()
 run_time = end_time-begin_time
-
-
 
 import os
 name1 = os.path.basename(__file__).split(".")[0]
@@ -416,7 +377,6 @@ name3 = str(args.sub)
 torch.save(model, 'Gabor/model_save_1/' + name1 + name2 + name3)
 
 import scipy.io as io
-
 io.savemat('Gabor/model_save_1/' + name1 + name2 
            + name3 + '.mat', 
            {'train_l2': np.array(train_l2_record), 'test_l2': np.array(test_l2_record)})

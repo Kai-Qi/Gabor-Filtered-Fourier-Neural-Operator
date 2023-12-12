@@ -1,7 +1,7 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+@author: Kai Qi
+This file is the Gabor-Filtered Fourier Neural Operator for solving the Navier-Stokes equation in Section 5.3.2 in the 
+[paper](Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations).
 """
 
 import argparse
@@ -16,20 +16,17 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from Adam import Adam
 from torch.nn import Parameter
 from torch.nn.modules import Module
 from torch.nn.parameter import Parameter
-
-from Adam import Adam
 from utilities3 import *
-
 torch.manual_seed(0)
 np.random.seed(0)
 from timeit import default_timer
 
 from Adam import Adam
 torch.backends.cudnn.benchmark = True
-
 
 parser = argparse.ArgumentParser(description='....')
 parser.add_argument('--learning_rate', type=float, default=0.021, help='Learning rate')
@@ -39,14 +36,9 @@ parser.add_argument('--width', type=int, default=20, help='width')
 
 args = parser.parse_args()
 
-
-
 global size_frequency
 size_frequency = args.size_frequency
 s = 65
-
-
-
 
 class GaborConv2d(Module):
     def __init__(
@@ -71,8 +63,6 @@ class GaborConv2d(Module):
         self.sigma = nn.Parameter(torch.tensor([2.82]).type(torch.Tensor), requires_grad=True)
         self.gamma = nn.Parameter(torch.tensor([1.0]).type(torch.Tensor), requires_grad=True)
 
-
-        # 向我们建立的网络module添加新的 parameter
         self.register_parameter("freq", self.freq)
         self.register_parameter("theta", self.theta)
         self.register_parameter("sigma", self.sigma)
