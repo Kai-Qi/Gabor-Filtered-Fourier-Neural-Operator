@@ -1,5 +1,5 @@
 # Gabor-Filtered-Fourier-Neural-Operator
-Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations (GFNO and AGFNO)
+Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations (GFNO)
 
 This is the code of paper "Gabor-Filtered Fourier Neural Operator for Solving Partial Differential Equations"
 
