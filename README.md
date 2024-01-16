@@ -11,11 +11,15 @@ The Fourier Neural Operator (FNO) solves a family of Partial Differential Equati
 ## Environment
 python 3.8, torch 1.10, CUDA 11.3
 
+## Dataset
+The dataset of 1d Burgers’ equation, 2-d Darcy Flow equation, and 3-d (2-d + time) Navier-Stokes equation:
+
+The dataset of Mechanical MNIST, Shallow Water equation, Climate modeling:
 
 
 
 ## Acknowledgement
-Our model and all used datasets are based on the original work of Fourier Neural Operators:
+Our model is based on the original work of Fourier Neural Operators:
 
 https://github.com/zongyi-li/fourier_neural_operator
 
