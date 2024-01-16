@@ -11,7 +11,9 @@ python 3.8, torch 1.10, CUDA 11.3
 
 
 
-
+## Acknowledgement
+Our model is based on the original code of Fourier Neural Operators:
+https://github.com/zongyi-li/fourier_neural_operator
 
 
 
