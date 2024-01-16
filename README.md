@@ -8,7 +8,7 @@ The Fourier Neural Operator (FNO) solves a family of Partial Differential Equati
 
 
 ## Architecture 
-![Image text](https://raw.github.com/yourName/repositpry/master/yourprojectName/img-folder/test.jpg)
+![Image text](https://github.com/Kai-Qi/Gabor-Filtered-Fourier-Neural-Operator/Architecture.pdf)
 
 
 
