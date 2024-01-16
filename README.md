@@ -14,8 +14,18 @@ python 3.8, torch 1.10, CUDA 11.3
 ## Dataset
 The dataset of 1d Burgers’ equation, 2-d Darcy Flow equation, and 3-d (2-d + time) Navier-Stokes equation:
 
-The dataset of Mechanical MNIST, Shallow Water equation, Climate modeling:
+Z. Li, N. Kovachki, K. Azizzadenesheli, B. Liu, K. Bhattacharya, A. Stuart, A. Anandkumar, Fourier neural operator for parametric partial
+differential equations, arXiv preprint arXiv:2010.08895 (2020)
 
+
+The dataset of Mechanical MNIST:
+
+E. Lejeune, Mechanical mnist: A benchmark dataset for mechanical metamodels, Extreme Mechanics Letters 36 (2020) 100659.
+
+The dataset of Shallow Water equation, Climate modeling:
+
+G. Kissas, J. H. Seidman, L. F. Guilhoto, V. M. Preciado, G. J. Pappas, P. Perdikaris, Learning operators with coupled attention, Journal of
+Machine Learning Research 23 (2022) 1–63.
 
 
 ## Acknowledgement
