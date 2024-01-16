@@ -14,8 +14,7 @@ python 3.8, torch 1.10, CUDA 11.3
 ## Dataset
 (1) The dataset of 1d Burgers’ equation, 2-d Darcy Flow equation, and 3-d (2-d + time) Navier-Stokes equation:
 
-Z. Li, N. Kovachki, K. Azizzadenesheli, B. Liu, K. Bhattacharya, A. Stuart, A. Anandkumar, Fourier neural operator for parametric partial
-differential equations, arXiv preprint arXiv:2010.08895 (2020)
+Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., and Anandkumar A., “Fourier Neural Operator for Parametric Partial Differential Equations”, ICLR, 2021. doi:10.48550/arXiv.2010.08895.
 
 
 (2) The dataset of Mechanical MNIST:
