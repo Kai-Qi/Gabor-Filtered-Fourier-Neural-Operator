@@ -21,6 +21,7 @@ python 3.8, torch 1.10, CUDA 11.3
 
 Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., and Anandkumar A., “Fourier Neural Operator for Parametric Partial Differential Equations”, ICLR, 2021. doi:10.48550/arXiv.2010.08895.
 
+https://drive.google.com/drive/folders/1UnbQh2WWc6knEHbLn-ZaXrKUZhp7pjt-
 
 **(2) The dataset of Mechanical MNIST:**
 
