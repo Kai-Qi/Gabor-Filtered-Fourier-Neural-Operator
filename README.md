@@ -17,24 +17,24 @@ The Fourier Neural Operator (FNO) solves a family of Partial Differential Equati
 python 3.8, torch 1.10, CUDA 11.3
 
 ## Dataset
-**(1) The dataset of 1d Burgers’ equation, 2-d Darcy Flow equation, and 3-d (2-d + time) Navier-Stokes equation:**
+**(1) The datasets of 1d Burgers’ equation, 2-d Darcy Flow equation, and 3-d (2-d + time) Navier-Stokes equation:**
 
 Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., and Anandkumar A., “Fourier Neural Operator for Parametric Partial Differential Equations”, ICLR, 2021. doi:10.48550/arXiv.2010.08895.
 
-https://drive.google.com/drive/folders/1UnbQh2WWc6knEHbLn-ZaXrKUZhp7pjt-
+Datasets download: https://drive.google.com/drive/folders/1UnbQh2WWc6knEHbLn-ZaXrKUZhp7pjt-
 
 **(2) The dataset of Mechanical MNIST:**
 
 E. Lejeune, Mechanical mnist: A benchmark dataset for mechanical metamodels, Extreme Mechanics Letters 36 (2020) 100659.
 
-https://drive.google.com/file/d/1UyjKnsL15FUHESO4rUt3Hg_CkFlxoCPz/view
+Datasets download: https://drive.google.com/file/d/1UyjKnsL15FUHESO4rUt3Hg_CkFlxoCPz/view
 
-**(3) The dataset of Shallow Water equation, Climate modeling:**
+**(3) The datasets of Shallow Water equation, and Climate modeling:**
 
 G. Kissas, J. H. Seidman, L. F. Guilhoto, V. M. Preciado, G. J. Pappas, P. Perdikaris, Learning operators with coupled attention, Journal of
 Machine Learning Research 23 (2022) 1–63.
 
-https://drive.google.com/file/d/1UyjKnsL15FUHESO4rUt3Hg_CkFlxoCPz/view
+Datasets download: https://drive.google.com/file/d/1UyjKnsL15FUHESO4rUt3Hg_CkFlxoCPz/view
 
 
 
