@@ -37,6 +37,12 @@ Machine Learning Research 23 (2022) 1–63.
 Datasets download: https://drive.google.com/file/d/1UyjKnsL15FUHESO4rUt3Hg_CkFlxoCPz/view
 
 
+**(4) The datasets of Navier-Stokes equations with increasing Reynolds numbers in Section 6.6 of our paper：
+
+```
+python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-5;
+```
+
 
 ## Acknowledgement
 Our model is based on the original work of Fourier Neural Operators:
