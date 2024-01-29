@@ -40,7 +40,12 @@ Datasets download: https://drive.google.com/file/d/1UyjKnsL15FUHESO4rUt3Hg_CkFlx
 **(4) The datasets of Navier-Stokes equations with increasing Reynolds numbers in Section 6.6 of our paper：**
 
 ```
+python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-2;
+python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-3;
+python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-4;
 python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-5;
+python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-6;
+python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-7;
 ```
 
 ## Citation
