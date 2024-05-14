@@ -51,8 +51,15 @@ python data_generation_Navier-Stokes_equation/ns_2d.py  --visc 1e-7;
 ## Citation
 
 ```
-to be confirmed
-
+@article{qi2024gabor,
+  title={Gabor-Filtered Fourier Neural Operator for solving Partial Differential Equations},
+  author={Qi, Kai and Sun, Jian},
+  journal={Computers \& Fluids},
+  volume={274},
+  pages={106239},
+  year={2024},
+  publisher={Elsevier}
+}
 ```
 
 ## Acknowledgement
